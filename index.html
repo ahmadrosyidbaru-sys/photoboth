@@ -23,7 +23,6 @@
         #bg-picker { -webkit-appearance: none; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; padding: 0; overflow: hidden; }
         #bg-picker::-webkit-color-swatch-wrapper { padding: 0; }
         #bg-picker::-webkit-color-swatch { border: none; border-radius: 50%; }
-        /* Font buttons grid adjustment */
         .font-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
     </style>
 </head>
@@ -54,7 +53,11 @@
                 <video id="video" autoplay playsinline class="mirror w-full h-full object-cover"></video>
                 <div id="countdown-box" class="absolute inset-0 flex items-center justify-center text-[150px]"></div>
                 
-                <div id="snap-container" class="absolute bottom-6 left-0 right-0 flex justify-center items-center">
+                <div id="snap-container" class="absolute bottom-6 left-0 right-0 flex flex-col justify-center items-center gap-4">
+                    <!-- Switch Camera Button -->
+                    <button onclick="switchCamera()" class="bg-white/20 backdrop-blur-md p-3 rounded-full border border-white/50 hover:bg-white/40 transition-all">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>
+                    </button>
                     <button id="snap-btn" onclick="takeIndividualSnap()" class="w-16 h-16 bg-white/20 backdrop-blur-md border-4 border-white rounded-full flex items-center justify-center transition-all hover:scale-110 active:scale-90 group">
                         <div class="w-12 h-12 bg-white rounded-full group-hover:bg-blue-500 transition-colors"></div>
                     </button>
@@ -80,13 +83,11 @@
         <!-- RIGHT: RESULT & EDITING -->
         <div id="editing-section" class="lg:w-1/2 w-full h-full bg-white border-l border-black/5 flex flex-col items-center p-6 lg:p-12 overflow-y-auto no-scrollbar shrink-0">
             <div class="w-full max-w-md space-y-10">
-                
                 <div class="flex flex-col items-center">
                     <canvas id="main-canvas"></canvas>
                 </div>
 
                 <div id="editor-tools" class="hidden editor-container space-y-10 pb-12">
-                    <!-- Filters -->
                     <div class="space-y-4">
                         <label class="text-[10px] font-black text-black/30 uppercase tracking-[0.2em]">Pilih Mood Filter</label>
                         <div class="grid grid-cols-5 gap-2">
@@ -98,7 +99,6 @@
                         </div>
                     </div>
 
-                    <!-- Fonts (20 VARIASI) -->
                     <div class="space-y-4">
                         <label class="text-[10px] font-black text-black/30 uppercase tracking-[0.2em]">Pilih Gaya Huruf (20 Variasi)</label>
                         <div class="font-grid">
@@ -125,7 +125,6 @@
                         </div>
                     </div>
 
-                    <!-- Custom Text & Color Picker -->
                     <div class="space-y-4">
                         <label class="text-[10px] font-black text-black/30 uppercase tracking-[0.2em]">Caption & Warna Background</label>
                         <div class="flex gap-2">
@@ -134,7 +133,6 @@
                         </div>
                     </div>
 
-                    <!-- QR Section -->
                     <div id="upload-box" class="glass p-8 rounded-[2.5rem] flex flex-col items-center gap-6 hidden">
                          <div id="qr-container" class="bg-white p-4 rounded-3xl border border-black/5">
                              <img id="qr-code" class="w-32 h-32">
@@ -167,19 +165,34 @@
         let currentFont = 'Plus Jakarta Sans';
         let currentFilter = 'none';
         let lastTempSnap = null;
+        let currentFacingMode = 'user';
 
-        async function initCamera() {
+        async function initCamera(facingMode = 'user') {
+            if (video.srcObject) {
+                video.srcObject.getTracks().forEach(track => track.stop());
+            }
             try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: { aspectRatio: 1/1, width: 1080, height: 1080 }, audio: false });
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { facingMode: facingMode, aspectRatio: 1/1, width: 1080, height: 1080 }, 
+                    audio: false 
+                });
                 video.srcObject = stream;
+                // Auto-toggle mirror class based on camera
+                if(facingMode === 'user') video.classList.add('mirror');
+                else video.classList.remove('mirror');
             } catch (e) { alert("Kamera tidak ditemukan."); }
+        }
+
+        function switchCamera() {
+            currentFacingMode = currentFacingMode === 'user' ? 'environment' : 'user';
+            initCamera(currentFacingMode);
         }
 
         function entrySession() {
             userName = document.getElementById('user-name').value.trim().toUpperCase() || "GUEST";
             document.getElementById('welcome-screen').classList.add('hidden');
             document.getElementById('main-app').classList.remove('hidden');
-            initCamera();
+            initCamera(currentFacingMode);
             setLayout('strip');
         }
 
@@ -205,7 +218,11 @@
             const temp = document.createElement('canvas');
             temp.width = 800; temp.height = 800;
             const ctx = temp.getContext('2d');
-            ctx.translate(800, 0); ctx.scale(-1, 1);
+            
+            // Handle mirroring in the snapshot
+            if(currentFacingMode === 'user') {
+                ctx.translate(800, 0); ctx.scale(-1, 1);
+            }
             
             const size = Math.min(video.videoWidth, video.videoHeight);
             const startX = (video.videoWidth - size) / 2;
