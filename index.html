@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SNAP.STU | Creative Studio v5.2</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- GOOGLE FONTS: 20 VARIATIONS -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@800&family=Playfair+Display:ital,wght@1,900&family=JetBrains+Mono:wght@800&family=Bebas+Neue&family=Pacifico&family=Space+Grotesk:wght@700&family=Syne:wght@800&family=Abril+Fatface&family=Outfit:wght@900&family=Unbounded:wght@900&family=Righteous&family=Bungee&family=Fraunces:ital,opsz,wght@1,9..144,900&family=Monoton&family=Modak&family=Press+Start+2P&family=Permanent+Marker&family=Alumni+Sans+Inline+One&family=Kablammo&family=Honk&display=swap" rel="stylesheet">
+    <style>
+        body { background: #ffffff; color: #000; font-family: 'Plus Jakarta Sans', sans-serif; height: 100vh; overflow: hidden; scroll-behavior: smooth; }
+        .mirror { transform: scaleX(-1); }
+        .glass { background: rgba(0,0,0,0.05); backdrop-filter: blur(25px); border: 1px solid rgba(0,0,0,0.1); }
+        #countdown-box { opacity: 0.8; font-weight: 800; pointer-events: none; text-shadow: 0 0 50px rgba(59, 130, 246, 0.5); z-index: 50; color: #3b82f6; }
+        .flash-active { animation: flash 0.4s ease-out; }
+        @keyframes flash { 0% { background: #fff; opacity: 1; } 100% { background: transparent; opacity: 0; } }
+        canvas { max-height: 70vh; width: auto; max-width: 100%; border-radius: 8px; box-shadow: 0 30px 60px -12px rgba(0,0,0,0.2); background: #eee; }
+        .btn-active { border-color: #3b82f6 !important; background: #3b82f6 !important; color: #fff !important; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .editor-container { animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        #bg-picker { -webkit-appearance: none; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; padding: 0; overflow: hidden; }
+        #bg-picker::-webkit-color-swatch-wrapper { padding: 0; }
+        #bg-picker::-webkit-color-swatch { border: none; border-radius: 50%; }
+        /* Font buttons grid adjustment */
+        .font-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
+    </style>
+</head>
+<body class="flex items-center justify-center">
+
+    <div id="flash" class="fixed inset-0 z-[200] pointer-events-none"></div>
+
+    <!-- START SCREEN -->
+    <section id="welcome-screen" class="fixed inset-0 z-[150] bg-white flex items-center justify-center p-6">
+        <div class="w-full max-w-md space-y-8 text-center">
+            <div class="space-y-2">
+                <h1 class="text-7xl font-black italic tracking-tighter text-blue-600 uppercase">Snap.Stu</h1>
+                <p class="text-black/30 text-[10px] font-bold uppercase tracking-[0.5em]">Creative Studio v5.2</p>
+            </div>
+            <div class="space-y-4">
+                <input type="text" id="user-name" placeholder="MASUKKAN NAMA..." class="w-full bg-black/5 border border-black/10 p-6 rounded-2xl text-center font-bold outline-none focus:border-blue-500 uppercase transition-all">
+                <button onclick="entrySession()" class="w-full bg-blue-600 text-white py-5 rounded-2xl font-black uppercase tracking-widest hover:bg-blue-700 transition-all shadow-lg shadow-blue-200">Mulai Sesi</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- MAIN INTERFACE -->
+    <main id="main-app" class="hidden w-full h-full flex flex-col lg:flex-row overflow-hidden">
+        
+        <!-- LEFT: CAMERA VIEW -->
+        <div id="camera-section" class="lg:w-1/2 w-full h-full bg-slate-50 flex flex-col items-center justify-center p-4 relative shrink-0">
+            <div class="relative w-full max-w-md aspect-square rounded-[2rem] overflow-hidden border border-black/5 bg-black shadow-2xl">
+                <video id="video" autoplay playsinline class="mirror w-full h-full object-cover"></video>
+                <div id="countdown-box" class="absolute inset-0 flex items-center justify-center text-[150px]"></div>
+                
+                <div id="snap-container" class="absolute bottom-6 left-0 right-0 flex justify-center items-center">
+                    <button id="snap-btn" onclick="takeIndividualSnap()" class="w-16 h-16 bg-white/20 backdrop-blur-md border-4 border-white rounded-full flex items-center justify-center transition-all hover:scale-110 active:scale-90 group">
+                        <div class="w-12 h-12 bg-white rounded-full group-hover:bg-blue-500 transition-colors"></div>
+                    </button>
+                </div>
+            </div>
+
+            <div id="capture-controls" class="mt-6 w-full max-w-md flex flex-col items-center gap-4 opacity-0 pointer-events-none transition-all duration-300">
+                <p class="text-blue-600 font-black uppercase tracking-widest text-[10px]">Hasil Jepretan</p>
+                <div class="flex gap-4 w-full">
+                    <button onclick="retakePhoto()" class="flex-1 bg-black text-white px-6 py-4 rounded-xl text-xs font-bold uppercase hover:bg-red-600 transition">Ulangi</button>
+                    <button onclick="keepPhoto()" class="flex-1 bg-blue-600 text-white px-6 py-4 rounded-xl text-xs font-bold uppercase shadow-xl shadow-blue-200 hover:bg-blue-700 transition">Keep It</button>
+                </div>
+            </div>
+
+            <div id="layout-tools" class="mt-6 w-full max-w-md">
+                <div class="glass p-2 rounded-2xl flex gap-2">
+                    <button onclick="setLayout('strip')" id="btn-strip" class="flex-1 py-3 rounded-xl text-[10px] font-bold uppercase border border-transparent transition text-black">Strip (3)</button>
+                    <button onclick="setLayout('grid')" id="btn-grid" class="flex-1 py-3 rounded-xl text-[10px] font-bold uppercase border border-transparent transition text-black">Grid (4)</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT: RESULT & EDITING -->
+        <div id="editing-section" class="lg:w-1/2 w-full h-full bg-white border-l border-black/5 flex flex-col items-center p-6 lg:p-12 overflow-y-auto no-scrollbar shrink-0">
+            <div class="w-full max-w-md space-y-10">
+                
+                <div class="flex flex-col items-center">
+                    <canvas id="main-canvas"></canvas>
+                </div>
+
+                <div id="editor-tools" class="hidden editor-container space-y-10 pb-12">
+                    <!-- Filters -->
+                    <div class="space-y-4">
+                        <label class="text-[10px] font-black text-black/30 uppercase tracking-[0.2em]">Pilih Mood Filter</label>
+                        <div class="grid grid-cols-5 gap-2">
+                            <button onclick="setFilter('none')" class="p-2 border border-black/10 rounded-lg text-[8px] font-bold uppercase hover:bg-blue-50">Nrm</button>
+                            <button onclick="setFilter('grayscale(100%)')" class="p-2 border border-black/10 rounded-lg text-[8px] font-bold uppercase hover:bg-blue-50">B&W</button>
+                            <button onclick="setFilter('sepia(80%)')" class="p-2 border border-black/10 rounded-lg text-[8px] font-bold uppercase hover:bg-blue-50">Sep</button>
+                            <button onclick="setFilter('contrast(1.4) brightness(0.9)')" class="p-2 border border-black/10 rounded-lg text-[8px] font-bold uppercase hover:bg-blue-50">Vnt</button>
+                            <button onclick="setFilter('hue-rotate(180deg)')" class="p-2 border border-black/10 rounded-lg text-[8px] font-bold uppercase hover:bg-blue-50">Cld</button>
+                        </div>
+                    </div>
+
+                    <!-- Fonts (20 VARIASI) -->
+                    <div class="space-y-4">
+                        <label class="text-[10px] font-black text-black/30 uppercase tracking-[0.2em]">Pilih Gaya Huruf (20 Variasi)</label>
+                        <div class="font-grid">
+                            <button onclick="setFont('Plus Jakarta Sans')" class="p-2 border border-black/10 rounded-lg text-[9px]">Jakarta</button>
+                            <button onclick="setFont('Playfair Display')" class="p-2 border border-black/10 rounded-lg text-[9px] italic">Playfair</button>
+                            <button onclick="setFont('JetBrains Mono')" class="p-2 border border-black/10 rounded-lg text-[9px]">Mono</button>
+                            <button onclick="setFont('Bebas Neue')" class="p-2 border border-black/10 rounded-lg text-[9px]">Bebas</button>
+                            <button onclick="setFont('Pacifico')" class="p-2 border border-black/10 rounded-lg text-[9px]">Script</button>
+                            <button onclick="setFont('Space Grotesk')" class="p-2 border border-black/10 rounded-lg text-[9px]">Space</button>
+                            <button onclick="setFont('Syne')" class="p-2 border border-black/10 rounded-lg text-[9px]">Syne</button>
+                            <button onclick="setFont('Abril Fatface')" class="p-2 border border-black/10 rounded-lg text-[9px]">Abril</button>
+                            <button onclick="setFont('Outfit')" class="p-2 border border-black/10 rounded-lg text-[9px]">Outfit</button>
+                            <button onclick="setFont('Unbounded')" class="p-2 border border-black/10 rounded-lg text-[9px]">Bound</button>
+                            <button onclick="setFont('Righteous')" class="p-2 border border-black/10 rounded-lg text-[9px]">Right</button>
+                            <button onclick="setFont('Bungee')" class="p-2 border border-black/10 rounded-lg text-[9px]">Bungee</button>
+                            <button onclick="setFont('Fraunces')" class="p-2 border border-black/10 rounded-lg text-[9px]">Fraun</button>
+                            <button onclick="setFont('Monoton')" class="p-2 border border-black/10 rounded-lg text-[9px]">MonoT</button>
+                            <button onclick="setFont('Modak')" class="p-2 border border-black/10 rounded-lg text-[9px]">Modak</button>
+                            <button onclick="setFont('Press Start 2P')" class="p-2 border border-black/10 rounded-lg text-[7px]">Retro</button>
+                            <button onclick="setFont('Permanent Marker')" class="p-2 border border-black/10 rounded-lg text-[8px]">Marker</button>
+                            <button onclick="setFont('Alumni Sans Inline One')" class="p-2 border border-black/10 rounded-lg text-[9px]">Inline</button>
+                            <button onclick="setFont('Kablammo')" class="p-2 border border-black/10 rounded-lg text-[9px]">Kablam</button>
+                            <button onclick="setFont('Honk')" class="p-2 border border-black/10 rounded-lg text-[9px]">Honk</button>
+                        </div>
+                    </div>
+
+                    <!-- Custom Text & Color Picker -->
+                    <div class="space-y-4">
+                        <label class="text-[10px] font-black text-black/30 uppercase tracking-[0.2em]">Caption & Warna Background</label>
+                        <div class="flex gap-2">
+                            <input type="text" id="custom-text" placeholder="TULIS CAPTION..." maxlength="20" oninput="drawFinal()" class="flex-1 bg-black/5 border border-black/10 p-4 rounded-xl text-xs font-bold outline-none focus:border-blue-500 uppercase">
+                            <input type="color" id="bg-picker" value="#ffffff" oninput="changeBg(this.value)">
+                        </div>
+                    </div>
+
+                    <!-- QR Section -->
+                    <div id="upload-box" class="glass p-8 rounded-[2.5rem] flex flex-col items-center gap-6 hidden">
+                         <div id="qr-container" class="bg-white p-4 rounded-3xl border border-black/5">
+                             <img id="qr-code" class="w-32 h-32">
+                         </div>
+                         <p id="upload-status" class="text-[10px] font-black text-blue-600 uppercase tracking-widest text-center">Menyimpan Sesi...</p>
+                    </div>
+
+                    <div class="space-y-3">
+                        <button id="sync-btn" onclick="processAndUpload()" class="w-full bg-blue-600 text-white py-6 rounded-2xl font-black text-xs tracking-widest uppercase shadow-2xl shadow-blue-200 hover:bg-blue-700 transition-all active:scale-95">Simpan & Dapatkan QR</button>
+                        <button onclick="window.location.reload()" class="w-full bg-black text-white py-4 rounded-2xl font-bold text-[10px] tracking-[0.3em] uppercase hover:bg-neutral-800 transition-all">Reset Sesi</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx-3Cg40eElzmYghvBv__8S3xc1GVXrUCGH6CimfKZm0Vmil_Y0CWMKth9W_ka0lZUhzQ/exec"; 
+        const DRIVE_URL = "https://drive.google.com/drive/folders/1wfP3gvg2WOY_mgiBqmuGjuw5Mz-KXxFF";
+
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('main-canvas');
+        const flash = document.getElementById('flash');
+        
+        let userName = "";
+        let sessionPhotos = [];
+        let rawPhotos = [];
+        let currentLayout = 'strip';
+        let bgColor = '#ffffff';
+        let currentFont = 'Plus Jakarta Sans';
+        let currentFilter = 'none';
+        let lastTempSnap = null;
+
+        async function initCamera() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: { aspectRatio: 1/1, width: 1080, height: 1080 }, audio: false });
+                video.srcObject = stream;
+            } catch (e) { alert("Kamera tidak ditemukan."); }
+        }
+
+        function entrySession() {
+            userName = document.getElementById('user-name').value.trim().toUpperCase() || "GUEST";
+            document.getElementById('welcome-screen').classList.add('hidden');
+            document.getElementById('main-app').classList.remove('hidden');
+            initCamera();
+            setLayout('strip');
+        }
+
+        function setLayout(l) {
+            currentLayout = l;
+            document.querySelectorAll('#btn-strip, #btn-grid').forEach(b => b.classList.remove('btn-active'));
+            document.getElementById(`btn-${l}`).classList.add('btn-active');
+            drawFinal();
+        }
+
+        function setFont(f) { currentFont = f; drawFinal(); }
+        function setFilter(f) { currentFilter = f; drawFinal(); }
+        function changeBg(c) { bgColor = c; drawFinal(); }
+
+        async function takeIndividualSnap() {
+            const max = currentLayout === 'strip' ? 3 : 4;
+            if(sessionPhotos.length >= max) return;
+            
+            document.getElementById('snap-btn').disabled = true;
+            await countdown(3);
+            triggerFlash();
+
+            const temp = document.createElement('canvas');
+            temp.width = 800; temp.height = 800;
+            const ctx = temp.getContext('2d');
+            ctx.translate(800, 0); ctx.scale(-1, 1);
+            
+            const size = Math.min(video.videoWidth, video.videoHeight);
+            const startX = (video.videoWidth - size) / 2;
+            const startY = (video.videoHeight - size) / 2;
+            ctx.drawImage(video, startX, startY, size, size, 0, 0, 800, 800);
+            
+            lastTempSnap = temp;
+            drawFinal(true);
+            toggleOverlay(true);
+        }
+
+        function toggleOverlay(show) {
+            const c = document.getElementById('capture-controls');
+            const s = document.getElementById('snap-container');
+            const lt = document.getElementById('layout-tools');
+            if(show) { 
+                c.classList.remove('pointer-events-none'); 
+                c.classList.add('opacity-100'); 
+                s.classList.add('hidden');
+                lt.classList.add('hidden');
+                video.pause(); 
+            }
+            else { 
+                c.classList.add('pointer-events-none'); 
+                c.classList.remove('opacity-100'); 
+                s.classList.remove('hidden');
+                lt.classList.remove('hidden');
+                video.play(); 
+                document.getElementById('snap-btn').disabled = false; 
+            }
+        }
+
+        function keepPhoto() {
+            sessionPhotos.push(lastTempSnap);
+            rawPhotos.push(lastTempSnap.toDataURL('image/png').split(',')[1]);
+            toggleOverlay(false);
+            drawFinal();
+            
+            const max = currentLayout === 'strip' ? 3 : 4;
+            if(sessionPhotos.length >= max) {
+                document.getElementById('camera-section').classList.add('hidden');
+                document.getElementById('editor-tools').classList.remove('hidden');
+                document.getElementById('editing-section').scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        function retakePhoto() {
+            lastTempSnap = null;
+            toggleOverlay(false);
+            drawFinal();
+        }
+
+        function countdown(sec) {
+            const box = document.getElementById('countdown-box');
+            return new Promise(resolve => {
+                let t = sec;
+                let timer = setInterval(() => {
+                    box.innerText = t;
+                    if (t <= 0) { clearInterval(timer); box.innerText = ''; resolve(); }
+                    t--;
+                }, 1000);
+            });
+        }
+
+        function triggerFlash() {
+            flash.classList.add('flash-active');
+            setTimeout(() => flash.classList.remove('flash-active'), 400);
+        }
+
+        function drawFinal(isPreview = false) {
+            const ctx = canvas.getContext('2d');
+            const isStrip = currentLayout === 'strip';
+            canvas.width = isStrip ? 400 : 800;
+            canvas.height = isStrip ? 1200 : 800;
+            
+            ctx.fillStyle = bgColor;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            const maxSlots = isStrip ? 3 : 4;
+            for(let i=0; i < maxSlots; i++) {
+                const x = isStrip ? 20 : (i % 2 === 0 ? 20 : 410);
+                const y = isStrip ? (20 + (i * 380)) : (i < 2 ? 20 : 410);
+                
+                let imgToDraw = sessionPhotos[i];
+                let isTemp = false;
+
+                if(!imgToDraw && isPreview && i === sessionPhotos.length) {
+                    imgToDraw = lastTempSnap;
+                    isTemp = true;
+                }
+
+                if(!imgToDraw) {
+                    ctx.fillStyle = 'rgba(0,0,0,0.05)';
+                    ctx.fillRect(x, y, 360, 360);
+                } else {
+                    ctx.save();
+                    if(!isTemp) ctx.filter = currentFilter;
+                    ctx.drawImage(imgToDraw, 0, 0, 800, 800, x, y, 360, 360);
+                    if(isTemp) {
+                        ctx.strokeStyle = '#3b82f6';
+                        ctx.lineWidth = 8;
+                        ctx.strokeRect(x+4, y+4, 352, 352);
+                    }
+                    ctx.restore();
+                }
+            }
+
+            const r = parseInt(bgColor.slice(1,3), 16);
+            const g = parseInt(bgColor.slice(3,5), 16);
+            const b = parseInt(bgColor.slice(5,7), 16);
+            const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+            const textColor = brightness > 128 ? '#000000' : '#ffffff';
+
+            ctx.font = `bold 28px "${currentFont}"`;
+            ctx.textAlign = 'center';
+            const txt = document.getElementById('custom-text').value.toUpperCase() || `SNAP.STU x ${userName}`;
+
+            ctx.fillStyle = textColor;
+            ctx.fillText(txt, canvas.width / 2, canvas.height - 35);
+        }
+
+        async function processAndUpload() {
+            const btn = document.getElementById('sync-btn');
+            const status = document.getElementById('upload-status');
+            const box = document.getElementById('upload-box');
+            btn.disabled = true; btn.innerText = "SEDANG MENGIRIM...";
+            box.classList.remove('hidden');
+            const sessionID = `${userName}-${Date.now()}`;
+
+            for(let i=0; i<rawPhotos.length; i++) {
+                status.innerText = `SYNC PHOTO ${i+1}/${rawPhotos.length}...`;
+                await fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({ sessionID, base64: rawPhotos[i], fileName: `RAW-${i+1}.png` })});
+            }
+            status.innerText = "GENERATING FINAL RESULT...";
+            const final = canvas.toDataURL('image/png').split(',')[1];
+            await fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({ sessionID, base64: final, fileName: `RESULT-${userName}.png` })});
+            
+            status.innerText = "SESI BERHASIL DISIMPAN!";
+            document.getElementById('qr-code').src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(DRIVE_URL)}`;
+            btn.innerText = "SELESAI";
+        }
+    </script>
+</body>
+</html>
