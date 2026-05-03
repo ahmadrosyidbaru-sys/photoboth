@@ -2,21 +2,24 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
+    <!-- Verifikasi Google Search Console -->
     <meta name="google-site-verification" content="zLXkD3HCnlS_8Brjc4aApYmXSFZ2Ik1J6k2dO6zax_c" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <!-- Judul yang akan muncul di Google -->
-    <title>Snap.Stu | Aplikasi Photobooth Online Gratis</title>
+    <!-- SEO: Judul Utama yang akan muncul di Google -->
+    <title>Snap Studio - Aplikasi Photobooth Online Gratis</title>
 
-    <!-- Deskripsi singkat di bawah judul pencarian -->
-    <meta name="description" content="Gunakan Snap.Stu untuk pengalaman photobooth digital yang seru dan mudah langsung dari browser kamu.">
+    <!-- SEO: Deskripsi singkat di bawah judul pencarian -->
+    <meta name="description" content="Gunakan Snap Studio untuk pengalaman photobooth digital yang seru, otomatis, dan gratis langsung dari browser kamu. Abadikan momen terbaikmu sekarang!">
 
-    <!-- Memberitahu robot Google untuk mengindeks halaman ini -->
+    <!-- SEO: Memberitahu robot Google untuk mengindeks halaman ini -->
     <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://ahmadrosyidbaru-sys.github.io/photoboth/" />
 
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- GOOGLE FONTS: 20 VARIATIONS -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@800&family=Playfair+Display:ital,wght@1,900&family=JetBrains+Mono:wght@800&family=Bebas+Neue&family=Pacifico&family=Space+Grotesk:wght@700&family=Syne:wght@800&family=Abril+Fatface&family=Outfit:wght@900&family=Unbounded:wght@900&family=Righteous&family=Bungee&family=Fraunces:ital,opsz,wght@1,9..144,900&family=Monoton&family=Modak&family=Press+Start+2P&family=Permanent+Marker&family=Alumni+Sans+Inline+One&family=Kablammo&family=Honk&display=swap" rel="stylesheet">
+    
     <style>
         body { background: #ffffff; color: #000; font-family: 'Plus Jakarta Sans', sans-serif; height: 100vh; overflow: hidden; scroll-behavior: smooth; }
         .mirror { transform: scaleX(-1); }
@@ -44,7 +47,8 @@
     <section id="welcome-screen" class="fixed inset-0 z-[150] bg-white flex items-center justify-center p-6">
         <div class="w-full max-w-md space-y-8 text-center">
             <div class="space-y-2">
-                <h1 class="text-7xl font-black italic tracking-tighter text-blue-600 uppercase">Snap.Stu</h1>
+                <!-- Diubah menjadi Snap Studio (tanpa titik) untuk SEO -->
+                <h1 class="text-7xl font-black italic tracking-tighter text-blue-600 uppercase">Snap Studio</h1>
                 <p class="text-black/30 text-[10px] font-bold uppercase tracking-[0.5em]">Creative Studio v5.2</p>
             </div>
             <div class="space-y-4">
@@ -64,7 +68,6 @@
                 <div id="countdown-box" class="absolute inset-0 flex items-center justify-center text-[150px]"></div>
                 
                 <div id="snap-container" class="absolute bottom-6 left-0 right-0 flex flex-col justify-center items-center gap-4">
-                    <!-- Switch Camera Button -->
                     <button onclick="switchCamera()" class="bg-white/20 backdrop-blur-md p-3 rounded-full border border-white/50 hover:bg-white/40 transition-all">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>
                     </button>
@@ -110,7 +113,7 @@
                     </div>
 
                     <div class="space-y-4">
-                        <label class="text-[10px] font-black text-black/30 uppercase tracking-[0.2em]">Pilih Gaya Huruf (20 Variasi)</label>
+                        <label class="text-[10px] font-black text-black/30 uppercase tracking-[0.2em]">Pilih Gaya Huruf</label>
                         <div class="font-grid">
                             <button onclick="setFont('Plus Jakarta Sans')" class="p-2 border border-black/10 rounded-lg text-[9px]">Jakarta</button>
                             <button onclick="setFont('Playfair Display')" class="p-2 border border-black/10 rounded-lg text-[9px] italic">Playfair</button>
@@ -346,7 +349,7 @@
 
             ctx.font = `bold 28px "${currentFont}"`;
             ctx.textAlign = 'center';
-            const txt = document.getElementById('custom-text').value.toUpperCase() || `SNAP.STU x ${userName}`;
+            const txt = document.getElementById('custom-text').value.toUpperCase() || `SNAP STUDIO x ${userName}`;
 
             ctx.fillStyle = textColor;
             ctx.fillText(txt, canvas.width / 2, canvas.height - 35);
