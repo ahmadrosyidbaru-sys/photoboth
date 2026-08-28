@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="google-site-verification" content="zLXkD3HCnlS_8Brjc4aApYmXSFZ2Ik1J6k2dO6zax_c" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>Snap Studio - Aplikasi Photobooth Online Gratis</title>
+
+    <meta name="description" content="Gunakan Snap Studio untuk pengalaman photobooth digital yang seru, otomatis, dan gratis langsung dari browser kamu. Abadikan momen terbaikmu sekarang!">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://ahmadrosyidbaru-sys.github.io/photobooth/" />
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@800&family=Playfair+Display:ital,wght@1,900&family=JetBrains+Mono:wght@800&family=Bebas+Neue&family=Pacifico&family=Space+Grotesk:wght@700&family=Syne:wght@800&family=Abril+Fatface&family=Outfit:wght@900&family=Unbounded:wght@900&family=Righteous&family=Bungee&family=Fraunces:ital,opsz,wght@1,9..144,900&family=Monoton&family=Modak&family=Press+Start+2P&family=Permanent+Marker&family=Alumni+Sans+Inline+One&family=Kablammo&family=Honk&display=swap" rel="stylesheet">
+    
+    <!-- Link ke file CSS eksternal -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="flex items-center justify-center">
+
+    <div id="flash" class="fixed inset-0 z-[200] pointer-events-none"></div>
+
+    <section id="welcome-screen" class="fixed inset-0 z-[150] bg-white flex items-center justify-center p-6">
+        <div class="w-full max-w-md space-y-8 text-center">
+            <div class="space-y-2">
+                <h1 class="text-7xl font-black italic tracking-tighter text-blue-600 uppercase">Snap Studio</h1>
+                <p class="text-black/30 text-[10px] font-bold uppercase tracking-[0.5em]">Creative Studio by @ahmdrosyidd</p>
+            </div>
+            
+            <div id="step-name" class="space-y-4">
+                <input type="text" id="user-name" placeholder="MASUKKAN NAMA..." class="w-full bg-white border border-black/10 p-6 rounded-2xl text-center font-bold outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 uppercase transition-all">
+                <button onclick="goToLayoutStep()" class="btn btn-primary w-full py-5 rounded-2xl">Mulai Sesi</button>
+            </div>
+
+            <div id="step-layout" class="space-y-6 hidden animate-[slideUp_0.4s_ease]">
+                <p class="text-blue-600 font-black uppercase tracking-widest text-xs">Pilih Layout Studio</p>
+                <div class="grid grid-cols-2 gap-4">
+                    <button onclick="selectLayoutAndStart('strip')" class="btn btn-choice p-6 rounded-2xl flex flex-col items-center justify-center gap-4 border border-black/10 hover:border-blue-500 h-44 transition-all">
+                        <div class="w-12 h-20 bg-black/5 rounded border border-black/10 flex flex-col gap-1 p-1">
+                            <div class="bg-black/20 flex-1 rounded-sm"></div>
+                            <div class="bg-black/20 flex-1 rounded-sm"></div>
+                            <div class="bg-black/20 flex-1 rounded-sm"></div>
+                        </div>
+                        <span class="text-xs font-black tracking-wide">Strip (3)</span>
+                    </button>
+                    
+                    <button onclick="selectLayoutAndStart('grid')" class="btn btn-choice p-6 rounded-2xl flex flex-col items-center justify-center gap-4 border border-black/10 hover:border-blue-500 h-44 transition-all">
+                        <div class="w-16 h-16 bg-black/5 rounded border border-black/10 grid grid-cols-2 gap-1 p-1">
+                            <div class="bg-black/20 rounded-sm"></div>
+                            <div class="bg-black/20 rounded-sm"></div>
+                            <div class="bg-black/20 rounded-sm"></div>
+                            <div class="bg-black/20 rounded-sm"></div>
+                        </div>
+                        <span class="text-xs font-black tracking-wide">Grid (4)</span>
+                    </button>
+                </div>
+                <button onclick="backToNameStep()" class="text-[10px] font-black text-black/30 uppercase tracking-widest hover:text-black transition-colors block mx-auto">← Kembali ganti nama</button>
+            </div>
+        </div>
+    </section>
+
+    <main id="main-app" class="hidden w-full h-full flex flex-col lg:flex-row overflow-hidden">
+        
+        <div id="camera-section" class="lg:w-1/2 w-full h-full bg-slate-50 flex flex-col items-center justify-center p-4 relative shrink-0">
+            <div class="relative w-full max-w-md aspect-square rounded-[2rem] overflow-hidden border border-black/5 bg-black shadow-2xl">
+                <video id="video" autoplay playsinline class="mirror w-full h-full object-cover"></video>
+                <div id="countdown-box" class="absolute inset-0 flex items-center justify-center text-[150px]"></div>
+                
+                <div id="snap-container" class="absolute bottom-6 left-0 right-0 flex flex-col justify-center items-center gap-4">
+                    <button onclick="switchCamera()" class="btn btn-ghost w-14 h-14 rounded-full flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>
+                    </button>
+                    <button id="snap-btn" onclick="takeIndividualSnap()" class="btn w-18 h-18 bg-white/20 backdrop-blur-md border-4 border-white rounded-full flex items-center justify-center hover:scale-110 active:scale(0.9) group px-0">
+                        <div class="w-12 h-12 bg-white rounded-full group-hover:bg-blue-500 transition-colors"></div>
+                    </button>
+                </div>
+            </div>
+
+            <div id="capture-controls" class="mt-6 w-full max-w-md flex flex-col items-center gap-4 opacity-0 pointer-events-none transition-all duration-300">
+                <p class="text-blue-600 font-black uppercase tracking-widest text-[10px]">Hasil Jepretan</p>
+                <div class="flex gap-4 w-full">
+                    <button onclick="retakePhoto()" class="btn btn-secondary flex-1 px-6 py-4 rounded-xl text-xs">Ulangi</button>
+                    <button onclick="keepPhoto()" class="btn btn-primary flex-1 px-6 py-4 rounded-xl text-xs">Keep It</button>
+                </div>
+            </div>
+
+            <div id="layout-tools" class="mt-6 w-full max-w-md">
+                <div class="glass p-2 rounded-2xl flex gap-2">
+                    <button onclick="setLayout('strip')" id="btn-strip" class="btn btn-choice flex-1 py-3 rounded-xl text-[10px]">Strip (3)</button>
+                    <button onclick="setLayout('grid')" id="btn-grid" class="btn btn-choice flex-1 py-3 rounded-xl text-[10px]">Grid (4)</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="editing-section" class="lg:w-1/2 w-full h-full bg-white border-l border-black/5 flex flex-col items-center p-6 lg:p-12 overflow-y-auto no-scrollbar shrink-0">
+            <div class="w-full max-w-md space-y-10">
+                <div class="flex flex-col items-center">
+                    <canvas id="main-canvas"></canvas>
+                </div>
+
+                <div id="editor-tools" class="hidden editor-container space-y-10 pb-12">
+                    <div class="space-y-4">
+                        <label class="text-[10px] font-black text-black/30 uppercase tracking-[0.2em]">Pilih Mood Filter</label>
+                        <div class="grid grid-cols-5 gap-2">
+                            <button onclick="setFilter('none')" data-filter="none" class="btn btn-choice p-2 rounded-lg text-[8px]">Nrm</button>
+                            <button onclick="setFilter('grayscale(100%)')" data-filter="grayscale(100%)" class="btn btn-choice p-2 rounded-lg text-[8px]">B&W</button>
+                            <button onclick="setFilter('sepia(80%)')" data-filter="sepia(80%)" class="btn btn-choice p-2 rounded-lg text-[8px]">Sep</button>
+                            <button onclick="setFilter('contrast(1.4) brightness(0.9)')" data-filter="contrast(1.4) brightness(0.9)" class="btn btn-choice p-2 rounded-lg text-[8px]">Vnt</button>
+                            <button onclick="setFilter('hue-rotate(180deg)')" data-filter="hue-rotate(180deg)" class="btn btn-choice p-2 rounded-lg text-[8px]">Cld</button>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <label class="text-[10px] font-black text-black/30 uppercase tracking-[0.2em]">Pilih Gaya Huruf</label>
+                        <div class="font-grid">
+                            <button onclick="setFont('Plus Jakarta Sans')" data-font="Plus Jakarta Sans" class="btn btn-choice p-2 rounded-lg text-[9px]">Jakarta</button>
+                            <button onclick="setFont('Playfair Display')" data-font="Playfair Display" class="btn btn-choice p-2 rounded-lg text-[9px] italic">Playfair</button>
+                            <button onclick="setFont('JetBrains Mono')" data-font="JetBrains Mono" class="btn btn-choice p-2 rounded-lg text-[9px]">Mono</button>
+                            <button onclick="setFont('Bebas Neue')" data-font="Bebas Neue" class="btn btn-choice p-2 rounded-lg text-[9px]">Bebas</button>
+                            <button onclick="setFont('Pacifico')" data-font="Pacifico" class="btn btn-choice p-2 rounded-lg text-[9px]">Script</button>
+                            <button onclick="setFont('Space Grotesk')" data-font="Space Grotesk" class="btn btn-choice p-2 rounded-lg text-[9px]">Space</button>
+                            <button onclick="setFont('Syne')" data-font="Syne" class="btn btn-choice p-2 rounded-lg text-[9px]">Syne</button>
+                            <button onclick="setFont('Abril Fatface')" data-font="Abril Fatface" class="btn btn-choice p-2 rounded-lg text-[9px]">Abril</button>
+                            <button onclick="setFont('Outfit')" data-font="Outfit" class="btn btn-choice p-2 rounded-lg text-[9px]">Outfit</button>
+                            <button onclick="setFont('Unbounded')" data-font="Unbounded" class="btn btn-choice p-2 rounded-lg text-[9px]">Bound</button>
+                            <button onclick="setFont('Righteous')" data-font="Righteous" class="btn btn-choice p-2 rounded-lg text-[9px]">Right</button>
+                            <button onclick="setFont('Bungee')" data-font="Bungee" class="btn btn-choice p-2 rounded-lg text-[9px]">Bungee</button>
+                            <button onclick="setFont('Fraunces')" data-font="Fraunces" class="btn btn-choice p-2 rounded-lg text-[9px]">Fraun</button>
+                            <button onclick="setFont('Monoton')" data-font="Monoton" class="btn btn-choice p-2 rounded-lg text-[9px]">MonoT</button>
+                            <button onclick="setFont('Modak')" data-font="Modak" class="btn btn-choice p-2 rounded-lg text-[9px]">Modak</button>
+                            <button onclick="setFont('Press Start 2P')" data-font="Press Start 2P" class="btn btn-choice p-2 rounded-lg text-[7px]">Retro</button>
+                            <button onclick="setFont('Permanent Marker')" data-font="Permanent Marker" class="btn btn-choice p-2 rounded-lg text-[8px]">Marker</button>
+                            <button onclick="setFont('Alumni Sans Inline One')" data-font="Alumni Sans Inline One" class="btn btn-choice p-2 rounded-lg text-[9px]">Inline</button>
+                            <button onclick="setFont('Kablammo')" data-font="Kablammo" class="btn btn-choice p-2 rounded-lg text-[9px]">Kablam</button>
+                            <button onclick="setFont('Honk')" data-font="Honk" class="btn btn-choice p-2 rounded-lg text-[9px]">Honk</button>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <label class="text-[10px] font-black text-black/30 uppercase tracking-[0.2em]">Caption & Warna Background</label>
+                        <div class="flex gap-2">
+                            <input type="text" id="custom-text" placeholder="TULIS CAPTION..." maxlength="20" oninput="drawFinal()" class="flex-1 bg-black/5 border border-black/10 p-4 rounded-xl text-xs font-bold outline-none focus:border-blue-500 uppercase">
+                            <input type="color" id="bg-picker" value="#ffffff" oninput="changeBg(this.value)">
+                        </div>
+                    </div>
+
+                    <div id="upload-box" class="glass p-8 rounded-[2.5rem] flex flex-col items-center gap-6 hidden">
+                         <div id="qr-container" class="bg-white p-4 rounded-3xl border border-black/5">
+                             <img id="qr-code" class="w-32 h-32">
+                         </div>
+                         <p id="upload-status" class="text-[10px] font-black text-blue-600 uppercase tracking-widest text-center">Menyimpan Sesi...</p>
+                    </div>
+
+                    <div class="space-y-3">
+                        <button id="sync-btn" onclick="processAndUpload()" class="btn btn-primary w-full py-6 rounded-2xl text-xs">Simpan & Dapatkan QR</button>
+                        <button onclick="window.location.reload()" class="btn btn-secondary w-full py-4 rounded-2xl text-[10px]">Reset Sesi</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Link ke file JavaScript eksternal -->
+    <script src="script.js"></script>
+</body>
+</html>
